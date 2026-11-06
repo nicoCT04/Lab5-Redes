@@ -1,0 +1,12 @@
+# Uso: ssh -F prototipo-mac/ssh_config web   |  ssh -F prototipo-mac/ssh_config db
+Host web
+    HostName 192.168.56.10
+Host db
+    HostName 192.168.56.20
+Host *
+    User sysadmin
+    Port 22022
+    IdentityFile ~/.ssh/lab5_ed25519
+    IdentitiesOnly yes
+    UserKnownHostsFile ~/.ssh/known_hosts_lab5
+    StrictHostKeyChecking accept-new
