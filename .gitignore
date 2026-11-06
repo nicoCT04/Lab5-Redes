@@ -1,0 +1,15 @@
+# Secretos (se pasan por privado)
+secretos.env
+
+# Imágenes de instalación y artefactos del prototipo
+*.iso
+prototipo-mac/build/
+
+# Material que no va al repo
+docs/
+evidencias/
+informe/*.js
+informe/figuras/
+~$*
+
+.DS_Store
