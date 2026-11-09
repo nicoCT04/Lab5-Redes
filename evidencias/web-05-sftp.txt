@@ -1,0 +1,10 @@
+== Config efectiva para wpadmin
+port 22022
+passwordauthentication yes
+forcecommand internal-sftp -u 0027
+chrootdirectory /var/www
+== Config efectiva para sysadmin
+port 22022
+passwordauthentication no
+forcecommand none
+chrootdirectory none

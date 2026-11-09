@@ -1,0 +1,6 @@
+LISTEN 0      4096         0.0.0.0:22022      0.0.0.0:*    users:(("sshd",pid=13511,fd=3),("systemd",pid=1,fd=82))
+LISTEN 0      4096            [::]:22022         [::]:*    users:(("sshd",pid=13511,fd=4),("systemd",pid=1,fd=87))
+OK: SSH escuchando en 22022
+lab5-web
+LISTEN 0      4096         0.0.0.0:22022      0.0.0.0:*          
+LISTEN 0      4096            [::]:22022         [::]:*          

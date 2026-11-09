@@ -1,0 +1,29 @@
+estado
+OK conexión a BD remota
+Downloading WordPress 7.1.4 (en_US)...
+md5 hash verified: e3ab64c0de73fe22c0e482c00fa9298c
+Success: WordPress downloaded.
+Success: Generated 'wp-config.php' file.
+Success: Added the constant 'DISALLOW_FILE_EDIT' to the 'wp-config.php' file with the raw value 'true'.
+Success: Added the constant 'DISALLOW_FILE_MODS' to the 'wp-config.php' file with the raw value 'true'.
+Success: Added the constant 'FORCE_SSL_ADMIN' to the 'wp-config.php' file with the raw value 'true'.
+Success: WordPress installed successfully.
+Downloading translation from https://downloads.wordpress.org/translation/core/7.1.4/es_ES.zip...
+Unpacking the update...
+Installing the latest version...
+Removing the old version of the translation...
+Translation updated successfully.
+Language 'es_ES' installed.
+Success: Language activated.
+Success: Installed 1 of 1 languages.
+== Permisos resultantes
+drwxr-xr-x 3 root    root     4096 Nov  9 14:01 /var/www
+drwxr-s--- 5 wpadmin www-data 4096 Nov  9 14:01 /var/www/wordpress
+total 248
+-rw-r-----  1 wpadmin www-data   405 Nov  9 14:01 index.php
+-rw-r-----  1 wpadmin www-data 19903 Nov  9 14:01 license.txt
+-rw-r-----  1 wpadmin www-data  7407 Nov  9 14:01 readme.html
+-rw-r-----  1 wpadmin www-data  7718 Nov  9 14:01 wp-activate.php
+drwxr-s---  9 wpadmin www-data  4096 Nov  9 14:01 wp-admin
+-rw-r-----  1 wpadmin www-data   351 Nov  9 14:01 wp-blog-header.php
+-rw-r-----  1 wpadmin www-data  2323 Nov  9 14:01 wp-comments-post.php

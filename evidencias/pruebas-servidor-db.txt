@@ -1,0 +1,68 @@
+
+===== Sistema operativo =====
+Description:	Ubuntu 26.04.1 LTS
+7.0.0-43-generic
+
+===== IP de la red del lab =====
+lo               UNKNOWN        127.0.0.1/8 
+enp0s3           UP             10.0.2.15/24 metric 100 
+enp0s8           UP             192.168.56.20/24 
+
+===== Puertos escuchando =====
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                                 
+LISTEN 0      4096         0.0.0.0:22022      0.0.0.0:*    users:(("sshd",pid=1587,fd=3),("systemd",pid=1,fd=195))
+LISTEN 0      4096      127.0.0.54:53         0.0.0.0:*    users:(("systemd-resolve",pid=487,fd=19))              
+LISTEN 0      4096   127.0.0.53%lo:53         0.0.0.0:*    users:(("systemd-resolve",pid=487,fd=17))              
+LISTEN 0      151    192.168.56.20:33306      0.0.0.0:*    users:(("mysqld",pid=2609,fd=19))                      
+LISTEN 0      4096            [::]:22022         [::]:*    users:(("sshd",pid=1587,fd=4),("systemd",pid=1,fd=196))
+
+===== Firewall UFW =====
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22022/tcp                  ALLOW IN    192.168.56.0/24            # SSH/SFTP lab5
+33306/tcp                  ALLOW IN    192.168.56.10              # MySQL desde web
+
+
+===== ping al servidor web =====
+PING 192.168.56.10 (192.168.56.10) 56(84) bytes of data.
+64 bytes from 192.168.56.10: icmp_seq=1 ttl=64 time=1.48 ms
+64 bytes from 192.168.56.10: icmp_seq=2 ttl=64 time=2.14 ms
+64 bytes from 192.168.56.10: icmp_seq=3 ttl=64 time=1.30 ms
+
+--- 192.168.56.10 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2004ms
+rtt min/avg/max/mdev = 1.302/1.640/2.136/0.358 ms
+
+===== Usuarios de MySQL =====
+user	host	plugin
+wp_user	192.168.56.10	caching_sha2_password
+debian-sys-maint	localhost	auth_socket
+mysql.infoschema	localhost	caching_sha2_password
+mysql.session	localhost	caching_sha2_password
+mysql.sys	localhost	caching_sha2_password
+root	localhost	auth_socket
+
+===== Privilegios de wp_user =====
+Grants for wp_user@192.168.56.10
+GRANT USAGE ON *.* TO `wp_user`@`192.168.56.10`
+GRANT ALL PRIVILEGES ON `wordpress_db`.* TO `wp_user`@`192.168.56.10`
+
+===== Tablas de WordPress =====
+Tables_in_wordpress_db
+wp_commentmeta
+wp_comments
+wp_links
+wp_options
+wp_postmeta
+wp_posts
+wp_term_relationships
+wp_term_taxonomy
+wp_termmeta
+wp_terms
+wp_usermeta
+wp_users

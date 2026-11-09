@@ -1,0 +1,3 @@
+LISTEN 0      4096         0.0.0.0:22022      0.0.0.0:*    users:(("sshd",pid=1587,fd=3),("systemd",pid=1,fd=73))
+LISTEN 0      4096            [::]:22022         [::]:*    users:(("sshd",pid=1587,fd=4),("systemd",pid=1,fd=75))
+OK: SSH escuchando en 22022
