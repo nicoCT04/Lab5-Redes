@@ -33,7 +33,7 @@ Sitio: **https://redes-lab5-wp.duckdns.org** (resuelto localmente con el archivo
 
 | # | Quién | Dónde | Comando / acción |
 |---|---|---|---|
-| 1 | C1 | VirtualBox | Crear VMs, instalar Ubuntu, llaves SSH, copiar `config/ scripts/ secretos.env` a `~/lab5` |
+| 1 | C1 | Git Bash (host) | `infra-windows/crear-vms.sh` → `infra-windows/crear-vms.sh --terminar` → `infra-windows/subir.sh web 22` y `... db 22` |
 | 2 | C2 | web y db | `sudo bash scripts/comun/01-ssh-puerto.sh` |
 | 3 | C2 | web / db | `sudo bash scripts/comun/02-ufw.sh web` · `... db` |
 | 4 | C2 | db | `sudo bash scripts/bd/01-mysql.sh` |
@@ -56,6 +56,8 @@ scripts/bd/                01-mysql.sh                            (VM db)
 scripts/web/               01-stack-web.sh, 02-wordpress-permisos.sh, 03-sftp.sh,
                            04-https.sh + hooks de DuckDNS         (VM web)
 scripts/pruebas/           pruebas-servidor.sh, pruebas-host-windows.ps1, pruebas-host-mac-linux.sh
+infra-windows/             creación de las VM en la laptop de la demo (Windows, VirtualBox 7.2, autoinstall)
+                           crear-vms.sh, hacer-seed.py (ISO CIDATA con pycdlib), subir.sh
 prototipo-mac/             automatización del prototipo en macOS (Apple Silicon); no se usa en la demo
 informe/                   informe del laboratorio (.docx)
 ```
@@ -117,4 +119,6 @@ solo para él (FileZilla), sin túneles. `umask 027` hace que lo que sube quede 
 | MySQL escuchaba en 127.0.0.1 | Orden alfabético: `99-lab5.cnf` se leía antes que `mysqld.cnf` | Renombrar a `zz-lab5.cnf` |
 | `wp core download --locale=es_ES` fallaba | Aún no existe traducción de WordPress 7.1.4 | Descargar en inglés e intentar activar español después |
 | `server_tokens off` no se aplicaba | En Nginx 1.28 de Ubuntu la línea es `server_tokens build;`, no comentada | `sed` con expresión regular más general |
+| VMs congeladas en la laptop Windows ("Guest seems to be unresponsive") | Windows tenía activo su hipervisor (WSL2, Integridad de memoria, VBS); VirtualBox no puede usar AMD-V y corre sobre Hyper-V (NEM) | Desactivar WSL/Hyper-V, Integridad de memoria y VBS; con eso las VMs quedaron estables. VBS sigue bloqueado por UEFI pero ya no congela las VMs |
+| El instalador pedía "Continue with autoinstall?" | Sin el parámetro `autoinstall` en el kernel, Ubuntu pide confirmación | Responder `yes` con `VBoxManage controlvm <vm> keyboardputstring`, sin abrir la consola |
 | Cambiar `Port` en sshd no bastaba | Ubuntu 24.04+ usa `ssh.socket` | `systemctl daemon-reload` + reiniciar `ssh.socket` |
