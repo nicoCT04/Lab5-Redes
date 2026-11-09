@@ -14,6 +14,8 @@ T "Puertos abiertos";             Test-NetConnection $WEB -Port $SSH | Select Co
 T "Puertos que deben estar CERRADOS (22 y MySQL desde host)"
                                   Test-NetConnection $WEB -Port 22     -WarningAction SilentlyContinue | Select ComputerName,RemotePort,TcpTestSucceeded
                                   Test-NetConnection $DB  -Port $MYSQL -WarningAction SilentlyContinue | Select ComputerName,RemotePort,TcpTestSucceeded
-T "SSH a ambas VM";               ssh -p $SSH sysadmin@$WEB "hostname; lsb_release -d"
-                                  ssh -p $SSH sysadmin@$DB  "hostname; lsb_release -d"
+# Alias 'web' y 'db' de ~/.ssh/config (IP, puerto 22022, usuario y llave del lab).
+# BatchMode evita quedarse esperando una contraseña si algo falla.
+T "SSH a ambas VM";               ssh -o BatchMode=yes web "hostname; lsb_release -d"
+                                  ssh -o BatchMode=yes db  "hostname; lsb_release -d"
 T "HTTPS con certificado valido"; curl.exe -sI "https://$Dominio" | Select-Object -First 5
