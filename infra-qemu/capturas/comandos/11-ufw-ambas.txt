@@ -1,2 +1,0 @@
-ssh web "sudo ufw status verbose"
-ssh db "sudo ufw status verbose"

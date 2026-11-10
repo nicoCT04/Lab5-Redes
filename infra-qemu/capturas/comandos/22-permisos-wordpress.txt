@@ -1,5 +1,0 @@
-ssh web "ls -ld /var/www /var/www/wordpress; sudo ls -l /var/www/wordpress | head -6"
-ssh web "sudo -u www-data touch /var/www/wordpress/prueba-permisos"
-ssh web "touch /var/www/wordpress/prueba-permisos"
-ssh web "sudo -u wpadmin touch /var/www/wordpress/prueba-permisos && sudo ls -l /var/www/wordpress/prueba-permisos && sudo -u wpadmin rm /var/www/wordpress/prueba-permisos"
-ssh web "sudo sshd -T -C user=wpadmin,host=x,addr=192.168.56.1 | grep -Ei '^(chrootdirectory|forcecommand|passwordauthentication)'"

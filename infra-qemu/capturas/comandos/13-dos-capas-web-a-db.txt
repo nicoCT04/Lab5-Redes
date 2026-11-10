@@ -1,4 +1,0 @@
-ssh web "ping -c 3 192.168.56.20"
-ssh web "nc -zv -w3 192.168.56.20 33306"
-ssh web "nc -zv -w3 192.168.56.20 3306"
-ssh web "cd ~/lab5 && . config/lab5.env && . secretos.env && mysql -h $DB_IP -P $MYSQL_PORT -u $DB_USER -p$DB_PASS -e 'SELECT CURRENT_USER(), @@hostname, @@port; SHOW TABLES FROM wordpress_db;'"
