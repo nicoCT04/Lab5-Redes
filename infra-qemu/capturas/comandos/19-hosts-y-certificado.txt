@@ -1,0 +1,6 @@
+(Select-String -Path C:\Windows\System32\drivers\etc\hosts -Pattern duckdns).Line
+ping -n 2 redes-lab5-wp.duckdns.org
+$t = [Net.Sockets.TcpClient]::new("redes-lab5-wp.duckdns.org", 443); $s = [Net.Security.SslStream]::new($t.GetStream())
+$s.AuthenticateAsClient("redes-lab5-wp.duckdns.org"); "Certificado validado por Windows: $($s.IsAuthenticated)"
+[Security.Cryptography.X509Certificates.X509Certificate2]$s.RemoteCertificate | Format-List Subject, Issuer, NotBefore, NotAfter
+curl.exe -sI http://redes-lab5-wp.duckdns.org

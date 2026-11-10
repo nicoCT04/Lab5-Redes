@@ -1,0 +1,1 @@
+ssh web "sleep 3 | telnet 192.168.56.20 33306"

@@ -1,0 +1,4 @@
+ssh web hostname
+ssh db hostname
+ssh -p 22 -o ConnectTimeout=5 sysadmin@192.168.56.10
+ssh -p 22 -o ConnectTimeout=5 sysadmin@192.168.56.20

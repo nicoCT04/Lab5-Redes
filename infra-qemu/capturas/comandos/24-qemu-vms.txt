@@ -1,0 +1,2 @@
+wsl -d Ubuntu-24.04 -e sh -c "qemu-system-x86_64 --version | head -1; ip -br addr show br-lab5"
+wsl -d Ubuntu-24.04 -e sh -c "ps -o pid,args -C qemu-system-x86_64 | cut -c1-118"

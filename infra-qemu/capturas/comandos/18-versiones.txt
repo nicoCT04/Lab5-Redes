@@ -1,0 +1,2 @@
+ssh web "hostname; lsb_release -d; mysql --version; sudo ufw version | head -1; ssh -V"
+ssh db "hostname; lsb_release -d; mysql --version; sudo ufw version | head -1; ssh -V"

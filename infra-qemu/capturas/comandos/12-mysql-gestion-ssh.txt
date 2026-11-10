@@ -1,0 +1,3 @@
+ssh db "sudo mysql -e 'SHOW DATABASES; SELECT user,host,plugin FROM mysql.user;'"
+ssh db "sudo ss -tlnp | grep mysqld"
+ssh db "mysql --version"

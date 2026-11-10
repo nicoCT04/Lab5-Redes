@@ -1,0 +1,6 @@
+(Test-Connection 192.168.56.10, 192.168.56.20 -Count 1 | Format-Table Address, IPV4Address, ResponseTime -AutoSize | Out-String).Trim()
+(Resolve-DnsName redes-lab5-wp.duckdns.org -Type A | Format-Table Name, IPAddress -AutoSize | Out-String).Trim()
+"192.168.56.10:22022","192.168.56.10:443","192.168.56.20:22022","192.168.56.10:22","192.168.56.20:22","192.168.56.20:33306" | ForEach-Object { $h,$p = $_ -split ":"; Test-NetConnection $h -Port $p -WarningAction SilentlyContinue } | Format-Table ComputerName, RemotePort, TcpTestSucceeded -AutoSize
+ssh web "hostname; lsb_release -d"
+ssh db "hostname; lsb_release -d"
+curl.exe -sI https://redes-lab5-wp.duckdns.org
