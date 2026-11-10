@@ -13,6 +13,7 @@ T "Puertos abiertos";             Test-NetConnection $WEB -Port $SSH | Select Co
                                   Test-NetConnection $DB  -Port $SSH | Select ComputerName,RemotePort,TcpTestSucceeded
 T "Puertos que deben estar CERRADOS (22 y MySQL desde host)"
                                   Test-NetConnection $WEB -Port 22     -WarningAction SilentlyContinue | Select ComputerName,RemotePort,TcpTestSucceeded
+                                  Test-NetConnection $DB  -Port 22     -WarningAction SilentlyContinue | Select ComputerName,RemotePort,TcpTestSucceeded
                                   Test-NetConnection $DB  -Port $MYSQL -WarningAction SilentlyContinue | Select ComputerName,RemotePort,TcpTestSucceeded
 # Alias 'web' y 'db' de ~/.ssh/config (IP, puerto 22022, usuario y llave del lab).
 # BatchMode evita quedarse esperando una contraseña si algo falla.
