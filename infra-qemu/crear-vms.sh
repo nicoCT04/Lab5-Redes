@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# Crea y arranca lab5-web y lab5-db con QEMU/KVM en WSL2, sin pantalla.
-# Mismo diseño que infra-windows/ (VirtualBox): 2 CPU, 2 GB, 15 GB, Ubuntu Server 26.04,
-# adaptador 1 NAT (Internet) + adaptador 2 en la red host-only (IP fija), usuario sysadmin
-# solo con llave. En lugar del instalador se usa la imagen cloud oficial + cloud-init.
+# Crea y arranca lab5-web y lab5-db con QEMU/KVM, sin pantalla.
+# 2 CPU, 2 GB, 15 GB, Ubuntu Server 26.04 (imagen cloud + cloud-init), NAT + red del laboratorio.
 #
 # Uso:  infra-qemu/crear-vms.sh            crea (si no existen) y arranca las 2 VM
 #       infra-qemu/crear-vms.sh --apagar   apaga ambas
@@ -28,7 +26,7 @@ apagar () {
   for V in "${VMS[@]}"; do
     read -r NAME _ <<<"$V"
     local PID; PID="$(pid_de "$NAME")" || { echo "$NAME ya estaba apagada"; continue; }
-    # Apagado ordenado por QMP (equivale a presionar el botón de encendido)
+    # Apagado ordenado por QMP
     python3 - "$BUILD/$NAME.qmp" <<'PY' || kill "$PID"
 import json, socket, sys
 s = socket.socket(socket.AF_UNIX); s.connect(sys.argv[1]); f = s.makefile("rw")
@@ -52,7 +50,7 @@ esac
 # --- Comprobaciones ---
 ip link show br-lab5 >/dev/null 2>&1 || { echo "Falta la red br-lab5: sudo bash infra-qemu/requisitos.sh"; exit 1; }
 command -v qemu-system-x86_64 >/dev/null || { echo "Falta QEMU: sudo bash infra-qemu/requisitos.sh"; exit 1; }
-# Si el grupo kvm se agregó en esta sesión, se usa con sg sin reiniciar WSL
+# Si el grupo kvm se acaba de agregar, se usa con sg sin cerrar sesión
 QEMU=(qemu-system-x86_64)
 id -nG | grep -qw kvm || QEMU=(sg kvm -c)
 
@@ -86,13 +84,12 @@ users:
     shell: /bin/bash
     lock_passwd: false
     passwd: '$PASS_HASH'
-    # sudo sin contraseña: permite lanzar los scripts por ssh sin TTY (igual que en VirtualBox)
+    # sudo sin contraseña, para correr los scripts por ssh sin TTY
     sudo: ALL=(ALL) NOPASSWD:ALL
     ssh_authorized_keys: ['$(cat "$LLAVE.pub")']
 EOF
     echo "instance-id: $NAME" > "$D/meta-data"
-    # Las NIC van en las ranuras PCI 3 y 8 (ver ARGS), así Ubuntu las nombra enp0s3 (NAT) y enp0s8
-    # (host-only), igual que en VirtualBox; set-name solo lo confirma
+    # NIC en las ranuras PCI 3 y 8 (ver ARGS): Ubuntu las nombra enp0s3 y enp0s8
     cat > "$D/network-config" <<EOF
 version: 2
 ethernets:
@@ -130,11 +127,11 @@ EOF
 
 for V in "${VMS[@]}"; do crear_y_arrancar $V; done
 
-# --- Alias ssh web / ssh db (como el ~/.ssh/config de la guía) ---
+# --- Alias ssh web / ssh db ---
 CFG="$BUILD/ssh_config"
 if [ ! -f "$CFG" ]; then
   cat > "$CFG" <<EOF
-# Generado por infra-qemu/crear-vms.sh. Paso 1 de la guía: cambiar Port 22 -> $SSH_PORT
+# Generado por infra-qemu/crear-vms.sh
 Host web
     HostName $WEB_IP
 Host db
@@ -157,7 +154,7 @@ fi
 chmod 600 "$HOME/.ssh/config"
 
 echo "Esperando a que SSH responda (primer arranque ~1 min)..."
-# No basta con que el puerto abra: hasta que termina el arranque, pam_nologin rechaza el login
+# Espera a que el login funcione (durante el arranque pam_nologin lo rechaza)
 for VM in web db; do
   for _ in $(seq 90); do ssh -o BatchMode=yes -o ConnectTimeout=3 "$VM" true 2>/dev/null && break; sleep 2; done
 done

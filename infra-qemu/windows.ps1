@@ -1,29 +1,24 @@
-# Deja Windows como "equipo host" de las VM que corren en WSL2 (QEMU), igual que con VirtualBox:
-#   - ruta a 192.168.56.0/24 a través de WSL (WSL reenvía y sale como 192.168.56.1)
-#   - dominio en el archivo hosts (resolución local)
-#   - llave y alias ssh web/db para PowerShell y para pruebas-host-windows.ps1
-#   - cliente telnet y FileZilla
-# Uso (PowerShell como administrador, desde la carpeta del repo):
-#   powershell -ExecutionPolicy Bypass -File infra-qemu\windows.ps1
-# La IP de WSL cambia al reiniciar Windows: si deja de responder, vuelve a correrlo.
+# Configura Windows como cliente del laboratorio: ruta a 192.168.56.0/24 por el anfitrión,
+# línea en hosts, llave y alias ssh, cliente telnet.
+# Uso (PowerShell como administrador): powershell -ExecutionPolicy Bypass -File infra-qemu\windows.ps1
+# Volver a correrlo si cambia la IP del anfitrión.
 param([string]$Distro = "Ubuntu-24.04", [string]$Usuario = "lfmendoza")
 $ErrorActionPreference = "Stop"
 $Red = "192.168.56.0"; $Dominio = "redes-lab5-wp.duckdns.org"; $WebIp = "192.168.56.10"
 
 Write-Host "== Ruta a la red del laboratorio" -ForegroundColor Cyan
-# IP de WSL en la red que comparte con Windows (vEthernet WSL). Se usa hostname -I porque
-# PowerShell 5.1 altera las comillas al pasar argumentos a wsl.exe.
+# IP del anfitrión en la red que comparte con Windows
 $VEth = Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -like "*WSL*" } | Select-Object -First 1
 $Pref = ($VEth.IPAddress -split "\.")[0..1] -join "."
-$WslIp = (wsl.exe -d $Distro hostname -I).Trim() -split "\s+" |
+$IpAnfitrion = (wsl.exe -d $Distro hostname -I).Trim() -split "\s+" |
   Where-Object { $_ -like "$Pref.*" -and $_ -notlike "192.168.56.*" -and $_ -ne $VEth.IPAddress } |
   Select-Object -First 1
-if (-not $WslIp) { throw "No pude obtener la IP de WSL ($Distro)" }
-# Por cmd: en PowerShell 5.1 cualquier texto de stderr de un comando nativo se vuelve error
+if (-not $IpAnfitrion) { throw "No pude obtener la IP del anfitrión ($Distro)" }
+# Por cmd: PowerShell 5.1 trata como error el stderr de comandos nativos
 cmd /c "route delete $Red >nul 2>&1"
-cmd /c "route add $Red mask 255.255.255.0 $WslIp >nul 2>&1"
+cmd /c "route add $Red mask 255.255.255.0 $IpAnfitrion >nul 2>&1"
 if ($LASTEXITCODE -ne 0) { throw "No se pudo agregar la ruta a $Red" }
-Write-Host "192.168.56.0/24 -> WSL $WslIp"
+Write-Host "192.168.56.0/24 -> $IpAnfitrion"
 
 Write-Host "== Archivo hosts" -ForegroundColor Cyan
 $Hosts = "$env:SystemRoot\System32\drivers\etc\hosts"
@@ -66,7 +61,7 @@ if ($T.State -ne "Enabled") { Enable-WindowsOptionalFeature -Online -FeatureName
 Write-Host "TelnetClient habilitado"
 
 Write-Host "== FileZilla" -ForegroundColor Cyan
-# FileZilla no está en winget: se descarga de su sitio oficial
+# FileZilla no está en winget
 if (Test-Path "$env:ProgramFiles\FileZilla FTP Client\filezilla.exe") { Write-Host "FileZilla instalado" }
 else { Write-Host "Falta FileZilla: descárgalo de https://filezilla-project.org/download.php?type=client" }
 

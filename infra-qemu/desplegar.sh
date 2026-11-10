@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-# Despliegue completo del laboratorio sobre las VM de QEMU, en el mismo orden que la
-# tabla "Orden de ejecución" del README. Todo por SSH desde el host (WSL); cada salida
-# queda en evidencias/qemu/ con el mismo nombre que las evidencias de la demo.
+# Despliegue completo por SSH, en el orden del README. Cada salida queda en evidencias/qemu/.
 #
 # Uso:  infra-qemu/desplegar.sh                 todo, con certificado de staging (no gasta límite)
 #       infra-qemu/desplegar.sh --certificado   además emite el certificado real de Let's Encrypt
-#       infra-qemu/desplegar.sh --solo-pruebas  solo el paso 10 (pruebas)
+#       infra-qemu/desplegar.sh --solo-pruebas  solo pruebas
 set -uo pipefail
 cd "$(dirname "$0")/.."
 source config/lab5.env
@@ -14,7 +12,7 @@ CFG=infra-qemu/build/ssh_config
 MODO="${1:-}"
 
 paso () { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
-# Ejecuta un comando en la VM y guarda la salida (sin códigos de color ni \r)
+# Ejecuta en la VM y guarda la salida
 en () { local VM=$1 ARCH=$2; shift 2
   ssh "$VM" "cd ~/lab5 && $*" 2>&1 | sed 's/\r$//' | tee "$EV/$ARCH.txt"; return "${PIPESTATUS[0]}"; }
 falla () { echo "ERROR: $*"; exit 1; }
@@ -25,7 +23,7 @@ if [ "$MODO" != --solo-pruebas ]; then
   paso "1. Copiar config/, scripts/ y secretos.env a las VM (puerto $PUERTO)"
   infra-windows/subir.sh web "$PUERTO" && infra-windows/subir.sh db "$PUERTO" || falla "no se pudo copiar"
 
-  paso "Paso 0 (guía Fernando): acceso por SSH"
+  paso "Acceso por SSH"
   { ssh web "hostname; ls ~/lab5"; ssh db "hostname; ls ~/lab5"; } 2>&1 | tee "$EV/00-acceso-ssh.txt"
 
   paso "2. SSH al puerto $SSH_PORT en ambas VM"
@@ -59,11 +57,11 @@ if [ "$MODO" != --solo-pruebas ]; then
   fi
 fi
 
-paso "10. Pruebas (guía Fernando, paso 5)"
+paso "10. Pruebas"
 en web pruebas-servidor-web "sudo bash scripts/pruebas/pruebas-servidor.sh web"
 en db  pruebas-servidor-db  "sudo bash scripts/pruebas/pruebas-servidor.sh db"
 # La prueba desde el host usa la llave y los puertos del laboratorio
-bash scripts/pruebas/pruebas-host-mac-linux.sh 2>&1 | tee "$EV/pruebas-host-wsl.txt"
+bash scripts/pruebas/pruebas-host-mac-linux.sh 2>&1 | tee "$EV/pruebas-host-linux.txt"
 
 paso "telnet desde el host (443 abre; 33306 lo bloquea UFW)"
 { echo "\$ telnet $WEB_IP 443";        timeout 5 stdbuf -o0 telnet "$WEB_IP" 443        </dev/null 2>&1

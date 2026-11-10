@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
-# Red del laboratorio en WSL2, equivalente al adaptador host-only de VirtualBox:
-#   br-lab5 = 192.168.56.1/24 (el "host"), sin DHCP; tap-web y tap-db conectadas al puente.
-# También deja que Windows llegue a 192.168.56.0/24 a través de WSL: el tráfico que
-# no viene de la red del lab sale con la IP 192.168.56.1 (MASQUERADE), así UFW lo trata
-# igual que al host de VirtualBox.
-# La instala requisitos.sh como servicio (lab5-red.service). Uso manual: red.sh up|down
+# Red del laboratorio: puente br-lab5 (192.168.56.1/24, sin DHCP) con tap-web y tap-db.
+# El tráfico que llega de otra red (cliente Windows) entra a las VM como 192.168.56.1.
+# La instala requisitos.sh como servicio lab5-red. Uso manual: red.sh up|down
 set -euo pipefail
 USUARIO="${USUARIO:?falta USUARIO (dueño de las interfaces tap)}"
 BR=br-lab5; RED=192.168.56.0/24; IP_HOST=192.168.56.1/24
-# Resolución local del dominio en el "host" (WSL regenera /etc/hosts al iniciar; por eso se agrega aquí)
+# Dominio en /etc/hosts del anfitrión (el archivo se regenera al iniciar)
 HOSTS_LINEA="192.168.56.10    redes-lab5-wp.duckdns.org"
 
 up () {

@@ -1,10 +1,10 @@
-# Lab 5 sobre QEMU/KVM en WSL2.  Uso: just -f infra-qemu/justfile <receta>
+# Lab 5 con QEMU/KVM. Uso: just -f infra-qemu/justfile <receta>
 
 # Lista de recetas
 default:
     @just --list --justfile {{justfile()}}
 
-# Una sola vez por equipo (pide sudo): QEMU, grupo kvm, red br-lab5 y dominio en /etc/hosts
+# Una sola vez (pide sudo): QEMU, grupo kvm, red br-lab5 y dominio en /etc/hosts
 requisitos:
     sudo bash requisitos.sh
 
@@ -12,11 +12,11 @@ requisitos:
 vms:
     ./crear-vms.sh
 
-# Despliega todo el laboratorio por SSH (agregar --certificado para el de Let's Encrypt real)
+# Despliegue completo por SSH (--certificado pide el certificado real)
 desplegar *opciones:
     ./desplegar.sh {{opciones}}
 
-# Solo las pruebas de funcionamiento
+# Solo pruebas
 pruebas:
     ./desplegar.sh --solo-pruebas
 

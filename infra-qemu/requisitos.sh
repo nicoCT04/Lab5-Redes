@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Prepara WSL2 para correr las VM con QEMU/KVM. Es lo único que necesita root.
+# Prepara el anfitrión para las VM con QEMU/KVM. Es lo único que necesita root.
 # Uso:  sudo bash infra-qemu/requisitos.sh
 set -euo pipefail
 cd "$(dirname "$0")"
 USUARIO="${SUDO_USER:?corre este script con sudo desde tu usuario}"
 
-[ -e /dev/kvm ] || { echo "No existe /dev/kvm: activa la virtualización anidada de WSL2"; exit 1; }
+[ -e /dev/kvm ] || { echo "No existe /dev/kvm: habilita la virtualización (VT-x) en el anfitrión"; exit 1; }
 
 echo "== Paquetes"
 apt-get update -qq
