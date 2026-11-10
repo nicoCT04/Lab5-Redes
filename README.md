@@ -1,6 +1,11 @@
 # Lab 5 — Mini Datacenter Virtualizado: WordPress en 2 capas
 
-Redes Sec. 10 · UVG · Entrega 10/11/2026 · Sin puntos extra (hipervisor tipo 2: VirtualBox)
+Redes Sec. 10 · UVG · Entrega 10/11/2026
+
+**Entrega final: implementación sobre QEMU/KVM** (Windows 11 + WSL2). Informe y guion en
+[`informe-qemu/`](informe-qemu/); scripts de infraestructura en [`infra-qemu/`](infra-qemu/); evidencias en
+`evidencias/qemu/`. La implementación en VirtualBox (`infra-windows/`, `informe/`) se mantiene para
+quien quiera continuar con ese hipervisor; ambas usan los mismos `config/` y `scripts/`.
 
 Sitio: **https://redes-lab5-wp.duckdns.org** (resuelto localmente con el archivo hosts)
 
@@ -58,9 +63,10 @@ scripts/web/               01-stack-web.sh, 02-wordpress-permisos.sh, 03-sftp.sh
 scripts/pruebas/           pruebas-servidor.sh, pruebas-host-windows.ps1, pruebas-host-mac-linux.sh
 infra-windows/             creación de las VM en la laptop de la demo (Windows, VirtualBox 7.2, autoinstall)
                            crear-vms.sh, hacer-seed.py (ISO CIDATA con pycdlib), subir.sh
-infra-qemu/                réplica del laboratorio con QEMU/KVM en WSL2 (validación); no se usa en la demo
+infra-qemu/                implementación final con QEMU/KVM en WSL2: requisitos, red, VM, despliegue, capturas
 prototipo-mac/             automatización del prototipo en macOS (Apple Silicon); no se usa en la demo
-informe/                   informe (.docx y .pdf), diagramas fuente (SVG) y guion de la demostración
+informe-qemu/              informe final QEMU/KVM (.docx y .pdf), diagramas (SVG) y guion de la demostración
+informe/                   informe de la implementación en VirtualBox (.docx y .pdf), diagramas y guion
 ```
 
 `secretos.env` tiene estas variables: `SYSADMIN_PASS`, `DB_PASS`, `WPADMIN_SFTP_PASS`,
@@ -136,14 +142,14 @@ Salidas de la demo (09/11/2026) en `evidencias/` (`*-01-ssh-puerto.txt`, `*-02-u
 
 ---
 
-## Réplica con QEMU/KVM en WSL2 (Fernando)
+## Implementación con QEMU/KVM en WSL2 (entrega final)
 
-Réplica completa del laboratorio en una laptop con Windows + WSL2, donde VirtualBox no es
-estable (WSL2 activa Hyper-V; es el mismo problema que congelaba las VMs en la laptop de la
-demo). Sirve para validar los scripts de punta a punta y practicar; **la demo oficial sigue
-siendo la de VirtualBox**. Se usan los mismos `config/` y `scripts/` sin ningún cambio.
+Laboratorio completo sobre QEMU 8.2.2 con aceleración KVM dentro de WSL2, en Windows 11. Se
+eligió porque convive con WSL2/Hyper-V (VirtualBox se congela en ese escenario), se automatiza
+por completo y es la misma base de Proxmox y OpenStack. Se usan los mismos `config/` y `scripts/`
+que en VirtualBox, sin cambios.
 
-| VirtualBox (demo) | Réplica QEMU/KVM |
+| VirtualBox | QEMU/KVM |
 |---|---|
 | Adaptador host-only 192.168.56.1/24 | Puente `br-lab5` 192.168.56.1/24 en WSL (servicio `lab5-red`) |
 | Adaptador 1 NAT (10.0.2.15) | NAT de QEMU (10.0.2.15), DNS 1.1.1.1 / 8.8.8.8 |
@@ -180,7 +186,7 @@ En FileZilla la llave del servidor se aceptó después de comparar la huella con
 
 | Requisito | Captura (`evidencias/qemu/capturas/`) |
 |---|---|
-| Hipervisor y VMs | `01-qemu-vms` |
+| Hipervisor y VMs | `01-qemu-vms`, `18-red-qemu` |
 | SSH 22022, 22 cerrado | `02-ssh-puerto-22022` |
 | UFW en ambas VM | `03-ufw-ambas` |
 | BD: gestión por SSH, 33306 | `04-mysql-gestion-ssh` |
