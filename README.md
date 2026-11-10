@@ -26,7 +26,7 @@ Sitio: **https://redes-lab5-wp.duckdns.org** (resuelto localmente con el archivo
 | Quién | Qué | Guía |
 |---|---|---|
 | Daniela Ramirez | VirtualBox, VMs Ubuntu 26.04, red, llaves SSH, archivo hosts, FileZilla (su laptop es la de la demo) | guía enviada por separado |
-| Fernando Mendoza | SSH en 22022, UFW, MySQL, pruebas de conectividad | guía enviada por separado |
+| Fernando Mendoza | SSH en 22022, UFW, MySQL, pruebas de conectividad | este README (abajo) |
 | Nicolás Concuá | Capa web, WordPress, permisos chown/chmod, SFTP, HTTPS Let's Encrypt | este README (abajo) |
 
 ## Orden de ejecución en la laptop de la demo
@@ -64,6 +64,74 @@ informe/                   informe del laboratorio (.docx)
 
 `secretos.env` tiene estas variables: `SYSADMIN_PASS`, `DB_PASS`, `WPADMIN_SFTP_PASS`,
 `WP_ADMIN_USER`, `WP_ADMIN_PASS`, `WP_ADMIN_EMAIL`, `DUCKDNS_TOKEN`.
+
+---
+
+## Parte de Fernando: SSH, firewall, base de datos y pruebas
+
+### 01-ssh-puerto.sh (ambas VM)
+`/etc/ssh/sshd_config.d/10-lab5.conf`: `Port 22022`, `PermitRootLogin no`, `PasswordAuthentication no`
+(solo llave), sin X11. Valida con `sshd -t` antes de reiniciar para no perder el acceso. En Ubuntu
+24.04+ el puerto lo abre `ssh.socket`, por eso hace `daemon-reload` y reinicia el socket.
+Después se cambia `Port 22` → `Port 22022` en los alias `web` y `db` del `~/.ssh/config` del host.
+
+| Servicio | Puerto por defecto | Puerto usado |
+|---|---|---|
+| SSH / SFTP | 22 | 22022 |
+| MySQL | 3306 | 33306 |
+| MySQL X Protocol | 33060 | desactivado |
+
+*Por qué puertos no conocidos:* los bots y escáneres automáticos prueban 22 y 3306; moverlos reduce
+ruido en los logs e intentos de acceso. Es seguridad por oscuridad: complementa a las llaves y al
+firewall, no los reemplaza.
+
+### 02-ufw.sh (ambas VM)
+Política por defecto: denegar entrante, permitir saliente. Solo se abre lo que se usa:
+
+| VM | Puerto | Origen | Motivo |
+|---|---|---|---|
+| web | 22022/tcp | 192.168.56.0/24 | SSH/SFTP solo desde la red del lab |
+| web | 80/tcp | cualquiera | únicamente redirige a HTTPS |
+| web | 443/tcp | cualquiera | WordPress por HTTPS |
+| db | 22022/tcp | 192.168.56.0/24 | SSH solo desde la red del lab |
+| db | 33306/tcp | 192.168.56.10 | MySQL solo desde la VM web (el host tampoco llega) |
+
+La regla del 33306 y el `bind-address` de MySQL se cubren entre sí: si una falla, la base sigue sin quedar expuesta.
+
+### 01-mysql.sh (VM db)
+- MySQL **8.4 LTS**, el que trae el repositorio oficial de Ubuntu 26.04; no hace falta agregar repositorios de Oracle.
+- `/etc/mysql/mysql.conf.d/zz-lab5.cnf`: `bind-address = 192.168.56.20`, `port = 33306`, `mysqlx = 0`.
+  Se llama `zz-` para que se lea después de `mysqld.cnf`; con `99-lab5.cnf` MySQL seguía en 127.0.0.1.
+- BD `wordpress_db` (utf8mb4) y usuario `wp_user@192.168.56.10` con privilegios **solo** sobre esa base:
+  pertenecen a WordPress y no son el administrador del motor.
+- `root` de MySQL se queda con `auth_socket`: solo entra quien ya es root en la VM (`sudo mysql`); no tiene
+  contraseña que robar ni acepta conexiones remotas.
+- Es idempotente: si cambia `DB_PASS` en `secretos.env`, se vuelve a correr y actualiza la contraseña.
+
+Gestión de la base por SSH desde el host:
+```
+ssh -t db "sudo mysql -e 'SHOW DATABASES; SELECT user,host,plugin FROM mysql.user;'"
+```
+
+*Cliente y servidor:* `mysqld` (lab5-db) es la aplicación servidor; PHP y el cliente `mysql` de lab5-web son
+las aplicaciones cliente. En esa conexión la VM web es el ordenador cliente, aunque para el navegador sea servidor.
+
+### Pruebas
+| Prueba | Comando | Resultado esperado |
+|---|---|---|
+| ping web ↔ db | `pruebas-servidor.sh web` / `db` | 0% packet loss |
+| MySQL abierto desde web | `nc -zv 192.168.56.20 33306` | `succeeded!` |
+| 3306 cerrado | `nc -zv 192.168.56.20 3306` | timed out |
+| Login remoto | `mysql -h 192.168.56.20 -P 33306 -u wp_user -p` | `wp_user@192.168.56.10  lab5-db  33306` y tablas `wp_*` |
+| Puertos desde el host | `pruebas-host-windows.ps1` | 22022 y 443 `True`; 22 y 33306 `False` |
+| SSH sin consola | `ssh web` / `ssh db` | hostname y `Ubuntu 26.04.1 LTS` |
+| telnet desde el host | `telnet 192.168.56.10 443` / `telnet 192.168.56.20 33306` | conecta / no conecta (firewall) |
+| telnet desde web | `telnet 192.168.56.20 33306` | saludo de MySQL con `8.4.11` |
+
+`telnet` no viene activo en Windows: `dism /online /Enable-Feature /FeatureName:TelnetClient` (PowerShell como administrador).
+En la VM web: `sudo apt-get install -y telnet`.
+
+Salidas de la demo (09/11/2026) en `evidencias/` (`*-01-ssh-puerto.txt`, `*-02-ufw.txt`, `db-03-mysql.txt`, `pruebas-*.txt`).
 
 ---
 
