@@ -16,7 +16,7 @@ if [ "$ROL" = web ]; then
   t "Puerto MySQL abierto en la BD (nc)"; nc -zv -w3 "$DB_IP" "$MYSQL_PORT"
   t "telnet al puerto MySQL (saludo del servidor)"
                                         command -v telnet >/dev/null || apt-get install -y telnet >/dev/null
-                                        sleep 2 | telnet "$DB_IP" "$MYSQL_PORT" 2>&1 | tr -cd "[:print:]\n" | head -4
+                                        sleep 2 | telnet "$DB_IP" "$MYSQL_PORT" 2>&1 | tr -cd "[:print:]\n" | head -6
   t "Puerto 3306 por defecto CERRADO";  nc -zv -w3 "$DB_IP" 3306 || echo "-> correcto: 3306 no responde"
   t "Login MySQL remoto con wp_user";   mysql -h "$DB_IP" -P "$MYSQL_PORT" -u "$DB_USER" -p"$DB_PASS" \
                                           -e "SELECT CURRENT_USER(), @@hostname, @@port; SHOW TABLES FROM $DB_NAME;"
