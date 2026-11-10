@@ -2,10 +2,9 @@
 
 Redes Sec. 10 · UVG · Entrega 10/11/2026
 
-**Entrega final: implementación sobre QEMU/KVM** (Windows 11 + WSL2). Informe y guion en
-[`informe-qemu/`](informe-qemu/); scripts de infraestructura en [`infra-qemu/`](infra-qemu/); evidencias en
-`evidencias/qemu/`. La implementación en VirtualBox (`infra-windows/`, `informe/`) se mantiene para
-quien quiera continuar con ese hipervisor; ambas usan los mismos `config/` y `scripts/`.
+Entrega final sobre **QEMU/KVM**: informe en `informe-qemu/`, infraestructura en `infra-qemu/`,
+evidencias en `evidencias/qemu/`. La versión en VirtualBox (`infra-windows/`, `informe/`) sigue
+disponible; las dos usan los mismos `config/` y `scripts/`.
 
 Sitio: **https://redes-lab5-wp.duckdns.org** (resuelto localmente con el archivo hosts)
 
@@ -63,7 +62,7 @@ scripts/web/               01-stack-web.sh, 02-wordpress-permisos.sh, 03-sftp.sh
 scripts/pruebas/           pruebas-servidor.sh, pruebas-host-windows.ps1, pruebas-host-mac-linux.sh
 infra-windows/             creación de las VM en la laptop de la demo (Windows, VirtualBox 7.2, autoinstall)
                            crear-vms.sh, hacer-seed.py (ISO CIDATA con pycdlib), subir.sh
-infra-qemu/                implementación final con QEMU/KVM en WSL2: requisitos, red, VM, despliegue, capturas
+infra-qemu/                VM con QEMU/KVM: requisitos del anfitrión, red, creación de VM y despliegue
 prototipo-mac/             automatización del prototipo en macOS (Apple Silicon); no se usa en la demo
 informe-qemu/              informe final QEMU/KVM (.docx y .pdf), diagramas (SVG) y guion de la demostración
 informe/                   informe de la implementación en VirtualBox (.docx y .pdf), diagramas y guion
@@ -76,135 +75,43 @@ informe/                   informe de la implementación en VirtualBox (.docx y 
 
 ## Parte de Fernando: SSH, firewall, base de datos y pruebas
 
-### 01-ssh-puerto.sh (ambas VM)
-`/etc/ssh/sshd_config.d/10-lab5.conf`: `Port 22022`, `PermitRootLogin no`, `PasswordAuthentication no`
-(solo llave), sin X11. Valida con `sshd -t` antes de reiniciar para no perder el acceso. En Ubuntu
-24.04+ el puerto lo abre `ssh.socket`, por eso hace `daemon-reload` y reinicia el socket.
-Después se cambia `Port 22` → `Port 22022` en los alias `web` y `db` del `~/.ssh/config` del host.
+### 01-ssh-puerto.sh
+`/etc/ssh/sshd_config.d/10-lab5.conf` con `Port 22022`, sin login de root y sin contraseñas (solo llave).
+Valida con `sshd -t` antes de reiniciar. En Ubuntu 24.04+ el puerto lo abre `ssh.socket`, por eso hace
+`daemon-reload` y reinicia el socket. Después se cambia el puerto de los alias `web` y `db` en `~/.ssh/config`.
 
-| Servicio | Puerto por defecto | Puerto usado |
-|---|---|---|
-| SSH / SFTP | 22 | 22022 |
-| MySQL | 3306 | 33306 |
-| MySQL X Protocol | 33060 | desactivado |
+### 02-ufw.sh web|db
+Deny por defecto. web: 22022 desde 192.168.56.0/24, 80 (redirige) y 443. db: 22022 desde 192.168.56.0/24
+y 33306 solo desde 192.168.56.10, así que el host no llega a MySQL.
 
-*Por qué puertos no conocidos:* los bots y escáneres automáticos prueban 22 y 3306; moverlos reduce
-ruido en los logs e intentos de acceso. Es seguridad por oscuridad: complementa a las llaves y al
-firewall, no los reemplaza.
-
-### 02-ufw.sh (ambas VM)
-Política por defecto: denegar entrante, permitir saliente. Solo se abre lo que se usa:
-
-| VM | Puerto | Origen | Motivo |
-|---|---|---|---|
-| web | 22022/tcp | 192.168.56.0/24 | SSH/SFTP solo desde la red del lab |
-| web | 80/tcp | cualquiera | únicamente redirige a HTTPS |
-| web | 443/tcp | cualquiera | WordPress por HTTPS |
-| db | 22022/tcp | 192.168.56.0/24 | SSH solo desde la red del lab |
-| db | 33306/tcp | 192.168.56.10 | MySQL solo desde la VM web (el host tampoco llega) |
-
-La regla del 33306 y el `bind-address` de MySQL se cubren entre sí: si una falla, la base sigue sin quedar expuesta.
-
-### 01-mysql.sh (VM db)
-- MySQL **8.4 LTS**, el que trae el repositorio oficial de Ubuntu 26.04; no hace falta agregar repositorios de Oracle.
-- `/etc/mysql/mysql.conf.d/zz-lab5.cnf`: `bind-address = 192.168.56.20`, `port = 33306`, `mysqlx = 0`.
-  Se llama `zz-` para que se lea después de `mysqld.cnf`; con `99-lab5.cnf` MySQL seguía en 127.0.0.1.
-- BD `wordpress_db` (utf8mb4) y usuario `wp_user@192.168.56.10` con privilegios **solo** sobre esa base:
-  pertenecen a WordPress y no son el administrador del motor.
-- `root` de MySQL se queda con `auth_socket`: solo entra quien ya es root en la VM (`sudo mysql`); no tiene
-  contraseña que robar ni acepta conexiones remotas.
-- Es idempotente: si cambia `DB_PASS` en `secretos.env`, se vuelve a correr y actualiza la contraseña.
-
-Gestión de la base por SSH desde el host:
-```
-ssh -t db "sudo mysql -e 'SHOW DATABASES; SELECT user,host,plugin FROM mysql.user;'"
-```
-
-*Cliente y servidor:* `mysqld` (lab5-db) es la aplicación servidor; PHP y el cliente `mysql` de lab5-web son
-las aplicaciones cliente. En esa conexión la VM web es el ordenador cliente, aunque para el navegador sea servidor.
+### 01-mysql.sh
+MySQL 8.4 LTS del repositorio de Ubuntu. `zz-lab5.cnf` con `bind-address = 192.168.56.20`, `port = 33306` y
+`mysqlx = 0`; se llama `zz-` para que se lea después de `mysqld.cnf` (con `99-` seguía en 127.0.0.1).
+Crea `wordpress_db` y `wp_user@192.168.56.10` con privilegios solo sobre esa base. `root` sigue con
+`auth_socket`: la base se administra con `ssh -t db "sudo mysql ..."`.
 
 ### Pruebas
-| Prueba | Comando | Resultado esperado |
-|---|---|---|
-| ping web ↔ db | `pruebas-servidor.sh web` / `db` | 0% packet loss |
-| MySQL abierto desde web | `nc -zv 192.168.56.20 33306` | `succeeded!` |
-| 3306 cerrado | `nc -zv 192.168.56.20 3306` | timed out |
-| Login remoto | `mysql -h 192.168.56.20 -P 33306 -u wp_user -p` | `wp_user@192.168.56.10  lab5-db  33306` y tablas `wp_*` |
-| Puertos desde el host | `pruebas-host-windows.ps1` | 22022 y 443 `True`; 22 y 33306 `False` |
-| SSH sin consola | `ssh web` / `ssh db` | hostname y `Ubuntu 26.04.1 LTS` |
-| telnet desde el host | `telnet 192.168.56.10 443` / `telnet 192.168.56.20 33306` | conecta / no conecta (firewall) |
-| telnet desde web | `telnet 192.168.56.20 33306` | saludo de MySQL con `8.4.11` |
-
-`telnet` no viene activo en Windows: `dism /online /Enable-Feature /FeatureName:TelnetClient` (PowerShell como administrador).
-En la VM web: `sudo apt-get install -y telnet`.
-
-Salidas de la demo (09/11/2026) en `evidencias/` (`*-01-ssh-puerto.txt`, `*-02-ufw.txt`, `db-03-mysql.txt`, `pruebas-*.txt`).
+`scripts/pruebas/pruebas-servidor.sh web|db` dentro de cada VM y `pruebas-host-windows.ps1` desde el host.
+Para telnet en Windows: `dism /online /Enable-Feature /FeatureName:TelnetClient` (como administrador).
 
 ---
 
-## Implementación con QEMU/KVM en WSL2 (entrega final)
+## QEMU/KVM (entrega final)
 
-Laboratorio completo sobre QEMU 8.2.2 con aceleración KVM dentro de WSL2, en Windows 11. Se
-eligió porque convive con WSL2/Hyper-V (VirtualBox se congela en ese escenario), se automatiza
-por completo y es la misma base de Proxmox y OpenStack. Se usan los mismos `config/` y `scripts/`
-que en VirtualBox, sin cambios.
-
-| VirtualBox | QEMU/KVM |
-|---|---|
-| Adaptador host-only 192.168.56.1/24 | Puente `br-lab5` 192.168.56.1/24 en WSL (servicio `lab5-red`) |
-| Adaptador 1 NAT (10.0.2.15) | NAT de QEMU (10.0.2.15), DNS 1.1.1.1 / 8.8.8.8 |
-| `enp0s3` / `enp0s8` | Igual: las NIC van en las ranuras PCI 3 y 8 |
-| ISO + autoinstall | Imagen cloud oficial de Ubuntu Server 26.04 + cloud-init |
-| Host = Windows | Host = WSL (`/etc/hosts`, `ssh web`) y también Windows (ruta a 192.168.56.0/24 vía WSL) |
+Anfitrión Linux con KVM y QEMU 8.2.2. Las VM usan la imagen cloud de Ubuntu Server 26.04.1 con cloud-init.
 
 ```
-just -f infra-qemu/justfile requisitos   # una vez, pide sudo: QEMU, grupo kvm, red y /etc/hosts
-just -f infra-qemu/justfile vms          # crea y arranca lab5-web y lab5-db (sin pantalla)
-just -f infra-qemu/justfile desplegar --certificado   # todo el orden de la tabla de arriba
-just -f infra-qemu/justfile pruebas      # solo pruebas
+just -f infra-qemu/justfile requisitos              # una vez (sudo): QEMU, grupo kvm, red br-lab5
+just -f infra-qemu/justfile vms                     # crea y arranca lab5-web y lab5-db
+just -f infra-qemu/justfile desplegar --certificado # despliegue completo, salidas en evidencias/qemu/
+just -f infra-qemu/justfile pruebas
 ```
-En Windows (PowerShell como administrador): `infra-qemu\windows.ps1` agrega la ruta, la línea
-en `hosts`, los alias `web`/`db` y el cliente telnet. Hay que volver a correrlo si se reinicia
-Windows, porque cambia la IP de WSL.
 
-Detalles:
-- Windows llega a las VMs a través de WSL; WSL hace MASQUERADE, así que el tráfico entra a
-  las VMs desde 192.168.56.1 y UFW lo trata igual que al host de VirtualBox.
-- QEMU corre como usuario normal: las interfaces `tap-web`/`tap-db` son de ese usuario.
-- No se usa la consola: la salida serie queda en `infra-qemu/build/<vm>-serial.log`.
-- Evidencias en `evidencias/qemu/` (salidas en texto) y `evidencias/qemu/capturas/` (17 capturas).
-- FileZilla 3.71.1 portable (zip oficial, SHA-512 verificado) en `%LOCALAPPDATA%\Programs`.
-
-Las capturas se tomaron con `infra-qemu/capturas/`: cada una abre una consola, Edge o FileZilla
-en Windows, corre los comandos de `capturas/comandos/<n>.txt` y captura **solo esa ventana**.
-Para repetirlas, copiar la carpeta a `%TEMP%\lab5` (junto con `scripts\pruebas\pruebas-host-windows.ps1`) y:
-```
-powershell -ExecutionPolicy Bypass -File $env:TEMP\lab5\tomar.ps1 -Lista $env:TEMP\lab5\comandos\11-ufw-ambas.txt -Png $env:TEMP\lab5\11.png
-```
-En FileZilla la llave del servidor se aceptó después de comparar la huella con
-`ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` en lab5-web (`SHA256:XX4MpdWZ...`).
-
-| Requisito | Captura (`evidencias/qemu/capturas/`) |
-|---|---|
-| Hipervisor y VMs | `01-qemu-vms`, `18-red-qemu` |
-| SSH 22022, 22 cerrado | `02-ssh-puerto-22022` |
-| UFW en ambas VM | `03-ufw-ambas` |
-| BD: gestión por SSH, 33306 | `04-mysql-gestion-ssh` |
-| 2 capas: ping, nc, login remoto | `05-dos-capas-web-a-db`, `06-telnet-web-a-mysql` |
-| Permisos chown/chmod | `07-permisos-wordpress` |
-| SFTP con FileZilla | `08-filezilla-conectado-chroot`, `09-filezilla-subida`, `10-filezilla-archivo-remoto`, `11-archivo-sftp-navegador` |
-| HTTPS Let's Encrypt | `12-sitio-https`, `13-hosts-y-certificado` |
-| Resolución local | `13-hosts-y-certificado` |
-| Pruebas desde el host | `14-pruebas-host-windows`, `15-telnet-host-33306`, `16-telnet-host-443` |
-| Versiones | `17-versiones` |
-
-| Problema | Causa | Solución |
-|---|---|---|
-| La NIC NAT quedó como `enp0s2` | cloud-init no puede renombrar una interfaz ya activa en el primer arranque | Fijar las NIC en las ranuras PCI 3 y 8 |
-| `ssh` rechazado con "System is booting up" | El puerto abre antes de que termine el arranque (`pam_nologin`) | Esperar a que el login funcione, no solo a que abra el puerto |
-| `route add` fallaba desde PowerShell | PowerShell 5.1 altera las comillas al llamar a `wsl.exe` | Obtener la IP de WSL con `hostname -I` |
-| FileZilla no se instala con winget | No está en el catálogo de winget | Zip portable oficial, verificado con su SHA-512 |
-| Con UFW activo, `ssh -p 22` da *timed out* y no *refused* | UFW descarta (DROP) en vez de rechazar | Es lo esperado: *refused* solo se ve antes de activar UFW (`evidencias/qemu/01-puerto-22-cerrado.txt`) |
+- Red del laboratorio: puente `br-lab5` (192.168.56.1/24) con `tap-web` y `tap-db`, servicio `lab5-red`.
+- Internet: NAT de QEMU (10.0.2.15, gateway 10.0.2.2).
+- Las NIC van en las ranuras PCI 3 y 8 para que se llamen `enp0s3` y `enp0s8`, igual que en VirtualBox.
+- Cliente Windows: `infra-qemu\windows.ps1` como administrador (ruta a 192.168.56.0/24, línea en hosts,
+  alias `ssh web`/`ssh db`, cliente telnet). El anfitrión traduce el origen a 192.168.56.1.
 
 ---
 
