@@ -60,7 +60,7 @@ infra-windows/             creación de las VM en la laptop de la demo (Windows,
                            crear-vms.sh, hacer-seed.py (ISO CIDATA con pycdlib), subir.sh
 infra-qemu/                réplica del laboratorio con QEMU/KVM en WSL2 (validación); no se usa en la demo
 prototipo-mac/             automatización del prototipo en macOS (Apple Silicon); no se usa en la demo
-informe/                   informe del laboratorio (.docx)
+informe/                   informe (.docx y .pdf), diagramas fuente (SVG) y guion de la demostración
 ```
 
 `secretos.env` tiene estas variables: `SYSADMIN_PASS`, `DB_PASS`, `WPADMIN_SFTP_PASS`,
