@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1010" viewBox="0 0 1600 1010" font-family="Liberation Sans, Arial, sans-serif">
+  <defs>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1F3A5F"/></marker>
+    <marker id="fv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2E7D5B"/></marker>
+    <marker id="fg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7A7A7A"/></marker>
+  </defs>
+  <rect width="1600" height="1010" fill="#FFFFFF"/>
+
+  <!-- Equipo host -->
+  <rect x="20" y="250" width="370" height="420" rx="10" fill="#F4F6F9" stroke="#1F3A5F" stroke-width="2"/>
+  <rect x="20" y="250" width="370" height="54" rx="10" fill="#1F3A5F"/>
+  <rect x="20" y="290" width="370" height="14" fill="#1F3A5F"/>
+  <text x="205" y="284" text-anchor="middle" font-size="22" font-weight="bold" fill="#FFFFFF">Equipo host (cliente)</text>
+  <text x="205" y="336" text-anchor="middle" font-size="18" fill="#1F3A5F">Windows 11 · ruta 192.168.56.0/24 → WSL</text>
+  <text x="205" y="362" text-anchor="middle" font-size="18" font-weight="bold" fill="#1F3A5F">llega a las VM como 192.168.56.1</text>
+  <g font-size="17" fill="#222">
+    <text x="40" y="404">• PowerShell + OpenSSH: ssh web / ssh db</text>
+    <text x="40" y="436">• FileZilla 3.71.1: SFTP como wpadmin</text>
+    <text x="40" y="468">• Microsoft Edge: https://redes-lab5-wp…</text>
+    <text x="40" y="500">• Archivo hosts (resolución local):</text>
+    <text x="60" y="526" font-family="Liberation Mono, monospace" font-size="15">192.168.56.10</text>
+    <text x="60" y="548" font-family="Liberation Mono, monospace" font-size="15">redes-lab5-wp.duckdns.org</text>
+    <text x="40" y="590">• Llave ed25519 · cliente telnet</text>
+  </g>
+  <text x="205" y="645" text-anchor="middle" font-size="15" fill="#555" font-style="italic">Administra todo de forma remota</text>
+
+  <!-- Red host-only -->
+  <rect x="450" y="90" width="805" height="840" rx="12" fill="#FAFBFD" stroke="#1F3A5F" stroke-width="2" stroke-dasharray="10 7"/>
+  <text x="470" y="124" font-size="19" font-weight="bold" fill="#1F3A5F">WSL2 · Ubuntu 24.04 (KVM) · QEMU 8.2.2</text><text x="470" y="148" font-size="15" fill="#1F3A5F">puente br-lab5 = red del laboratorio 192.168.56.0/24 (sin DHCP)</text>
+  <line x1="600" y1="160" x2="600" y2="880" stroke="#1F3A5F" stroke-width="6"/>
+  <text x="588" y="780" font-size="15" fill="#1F3A5F" transform="rotate(-90 588 780)" text-anchor="middle">br-lab5 · 192.168.56.1/24</text>
+
+  <!-- VM web -->
+  <rect x="700" y="160" width="520" height="330" rx="10" fill="#EEF5F1" stroke="#2E7D5B" stroke-width="2"/>
+  <rect x="700" y="160" width="520" height="54" rx="10" fill="#2E7D5B"/>
+  <rect x="700" y="200" width="520" height="14" fill="#2E7D5B"/>
+  <text x="960" y="195" text-anchor="middle" font-size="22" font-weight="bold" fill="#FFF">lab5-web · capa web · 192.168.56.10</text>
+  <g font-size="17" fill="#222">
+    <text x="724" y="246">Ubuntu Server 26.04.1 LTS · 2 vCPU · 2 GB · 15 GB</text>
+    <text x="724" y="278">Nginx 1.28.3 + PHP-FPM 8.5.4 → WordPress 7.1.4</text>
+    <text x="724" y="310">Cliente mysql 8.4.11 · WP-CLI 2.12.0 · certbot 4.0.0</text>
+    <text x="724" y="342">OpenSSH 10.2p1 en 22022 · SFTP enjaulado (wpadmin)</text>
+    <text x="724" y="374">/var/www/wordpress → wpadmin:www-data 2750/640</text>
+  </g>
+  <rect x="724" y="394" width="472" height="78" rx="6" fill="#FFFFFF" stroke="#2E7D5B"/>
+  <text x="740" y="420" font-size="16" font-weight="bold" fill="#2E7D5B">UFW (deny incoming por defecto)</text>
+  <text x="740" y="446" font-size="16" fill="#222">22022/tcp desde 192.168.56.0/24 · 80/tcp → 301 HTTPS</text>
+  <text x="740" y="466" font-size="16" fill="#222">443/tcp (HTTPS, TLS 1.2/1.3, HSTS)</text>
+  <line x1="603" y1="320" x2="700" y2="320" stroke="#1F3A5F" stroke-width="3"/>
+  <text x="610" y="312" font-size="14" fill="#1F3A5F">tap-web</text>
+
+  <!-- VM db -->
+  <rect x="700" y="600" width="520" height="290" rx="10" fill="#FBF3EA" stroke="#A65E1F" stroke-width="2"/>
+  <rect x="700" y="600" width="520" height="54" rx="10" fill="#A65E1F"/>
+  <rect x="700" y="640" width="520" height="14" fill="#A65E1F"/>
+  <text x="960" y="635" text-anchor="middle" font-size="22" font-weight="bold" fill="#FFF">lab5-db · capa de datos · 192.168.56.20</text>
+  <g font-size="17" fill="#222">
+    <text x="724" y="686">Ubuntu Server 26.04.1 LTS · 2 vCPU · 2 GB · 15 GB</text>
+    <text x="724" y="718">MySQL 8.4.11 LTS · bind 192.168.56.20 · puerto 33306</text>
+    <text x="724" y="750">wordpress_db (utf8mb4) · wp_user@192.168.56.10</text>
+    <text x="724" y="782">root con auth_socket · protocolo X (33060) apagado</text>
+  </g>
+  <rect x="724" y="800" width="472" height="70" rx="6" fill="#FFFFFF" stroke="#A65E1F"/>
+  <text x="740" y="826" font-size="16" font-weight="bold" fill="#A65E1F">UFW (deny incoming por defecto)</text>
+  <text x="740" y="852" font-size="16" fill="#222">22022/tcp desde 192.168.56.0/24 · 33306/tcp solo desde .10</text>
+  <line x1="603" y1="745" x2="700" y2="745" stroke="#1F3A5F" stroke-width="3"/>
+  <text x="610" y="737" font-size="14" fill="#1F3A5F">tap-db</text>
+
+  <!-- MySQL web -> db -->
+  <line x1="1000" y1="492" x2="1000" y2="596" stroke="#2E7D5B" stroke-width="3" marker-end="url(#fv)"/>
+  <rect x="684" y="524" width="300" height="40" rx="6" fill="#FFFFFF" stroke="#2E7D5B"/>
+  <text x="834" y="550" text-anchor="middle" font-size="16" fill="#2E7D5B" font-weight="bold">MySQL TCP 33306 (web → db)</text>
+
+  <!-- Host -> red -->
+  <line x1="390" y1="380" x2="596" y2="380" stroke="#1F3A5F" stroke-width="3" marker-end="url(#f)"/>
+  <text x="462" y="370" font-size="15" fill="#1F3A5F" font-weight="bold">HTTPS 443</text>
+  <line x1="390" y1="450" x2="596" y2="450" stroke="#1F3A5F" stroke-width="3" marker-end="url(#f)"/>
+  <text x="462" y="440" font-size="15" fill="#1F3A5F" font-weight="bold">SSH/SFTP 22022</text>
+  <line x1="390" y1="560" x2="596" y2="560" stroke="#B3261E" stroke-width="3" stroke-dasharray="6 5"/>
+  <text x="462" y="550" font-size="15" fill="#B3261E" font-weight="bold">33306 ✕ (UFW)</text>
+
+  <!-- NAT / Internet -->
+  <rect x="1300" y="230" width="270" height="190" rx="10" fill="#F2F2F2" stroke="#7A7A7A" stroke-width="2"/>
+  <text x="1435" y="262" text-anchor="middle" font-size="19" font-weight="bold" fill="#444">Internet (NAT de QEMU)</text>
+  <g font-size="15" fill="#333">
+    <text x="1318" y="294">• Repositorios de Ubuntu</text>
+    <text x="1318" y="322">• Let's Encrypt (ACME)</text>
+    <text x="1318" y="350">• API DuckDNS (TXT)</text>
+    <text x="1318" y="378">• DNS 1.1.1.1 / 8.8.8.8</text>
+  </g>
+  <text x="1435" y="406" text-anchor="middle" font-size="13" fill="#666">enp0s3 · 10.0.2.15 → gw 10.0.2.2</text>
+  <line x1="1220" y1="300" x2="1296" y2="300" stroke="#7A7A7A" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#fg)"/>
+  <path d="M1220,700 L1435,700 L1435,424" fill="none" stroke="#7A7A7A" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#fg)"/>
+
+  <rect x="20" y="700" width="370" height="96" rx="8" fill="#FFFFFF" stroke="#1F3A5F" stroke-dasharray="5 4"/>
+  <text x="36" y="726" font-size="15" font-weight="bold" fill="#1F3A5F">Windows → WSL → VM</text>
+  <text x="36" y="750" font-size="14" fill="#222">route add 192.168.56.0/24 vía IP de WSL</text>
+  <text x="36" y="772" font-size="14" fill="#222">WSL reenvía y aplica MASQUERADE:</text>
+  <text x="36" y="790" font-size="14" fill="#222">el tráfico entra a las VM desde .1</text>
+  <!-- Leyenda -->
+  <g font-size="14" fill="#333">
+    <line x1="40" y1="965" x2="80" y2="965" stroke="#1F3A5F" stroke-width="3"/><text x="88" y="970">red del laboratorio (br-lab5)</text>
+    <line x1="40" y1="992" x2="80" y2="992" stroke="#7A7A7A" stroke-width="2.5" stroke-dasharray="6 5"/><text x="88" y="997">salida NAT de QEMU (solo saliente)</text>
+    <line x1="420" y1="965" x2="460" y2="965" stroke="#B3261E" stroke-width="3" stroke-dasharray="6 5"/><text x="468" y="970">tráfico denegado por UFW</text>
+  </g>
+</svg>
