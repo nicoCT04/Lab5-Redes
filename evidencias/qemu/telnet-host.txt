@@ -1,0 +1,8 @@
+$ telnet 192.168.56.10 443
+Trying 192.168.56.10...
+Connected to 192.168.56.10.
+Escape character is '^]'.
+Connection closed by foreign host.
+$ telnet 192.168.56.20 33306
+Trying 192.168.56.20...
+(sin respuesta tras 8 s: bloqueado por el firewall)

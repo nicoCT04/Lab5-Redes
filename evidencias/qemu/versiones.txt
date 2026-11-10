@@ -1,0 +1,12 @@
+== lab5-web
+Description:	Ubuntu 26.04.1 LTS
+7.0.0-38-generic
+ufw 0.36.2
+OpenSSH_10.2p1 Ubuntu-2ubuntu3.8, OpenSSL 3.5.5 27 Jan 2026
+mysql  Ver 8.4.11-0ubuntu0.26.04.1 for Linux on x86_64 ((Ubuntu))
+== lab5-db
+Description:	Ubuntu 26.04.1 LTS
+7.0.0-38-generic
+ufw 0.36.2
+OpenSSH_10.2p1 Ubuntu-2ubuntu3.8, OpenSSL 3.5.5 27 Jan 2026
+mysql  Ver 8.4.11-0ubuntu0.26.04.1 for Linux on x86_64 ((Ubuntu))

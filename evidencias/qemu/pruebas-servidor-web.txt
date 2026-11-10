@@ -1,0 +1,107 @@
+
+===== Sistema operativo =====
+Description:	Ubuntu 26.04.1 LTS
+7.0.0-38-generic
+
+===== IP de la red del lab =====
+lo               UNKNOWN        127.0.0.1/8 
+enp0s3           UP             10.0.2.15/24 metric 100 
+enp0s8           UP             192.168.56.10/24 
+
+===== Puertos escuchando =====
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                                                              
+LISTEN 0      4096         0.0.0.0:22022      0.0.0.0:*    users:(("sshd",pid=2060,fd=3),("systemd",pid=1,fd=253))                             
+LISTEN 0      4096   127.0.0.53%lo:53         0.0.0.0:*    users:(("systemd-resolve",pid=676,fd=17))                                           
+LISTEN 0      511          0.0.0.0:443        0.0.0.0:*    users:(("nginx",pid=14955,fd=13),("nginx",pid=14954,fd=13),("nginx",pid=8093,fd=13))
+LISTEN 0      511          0.0.0.0:80         0.0.0.0:*    users:(("nginx",pid=14955,fd=5),("nginx",pid=14954,fd=5),("nginx",pid=8093,fd=5))   
+LISTEN 0      4096      127.0.0.54:53         0.0.0.0:*    users:(("systemd-resolve",pid=676,fd=19))                                           
+LISTEN 0      4096            [::]:22022         [::]:*    users:(("sshd",pid=2060,fd=4),("systemd",pid=1,fd=254))                             
+
+===== Firewall UFW =====
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22022/tcp                  ALLOW IN    192.168.56.0/24            # SSH/SFTP lab5
+80/tcp                     ALLOW IN    Anywhere                   # HTTP (redirige a HTTPS)
+443/tcp                    ALLOW IN    Anywhere                   # HTTPS WordPress
+80/tcp (v6)                ALLOW IN    Anywhere (v6)              # HTTP (redirige a HTTPS)
+443/tcp (v6)               ALLOW IN    Anywhere (v6)              # HTTPS WordPress
+
+
+===== ping a la BD =====
+PING 192.168.56.20 (192.168.56.20) 56(84) bytes of data.
+64 bytes from 192.168.56.20: icmp_seq=1 ttl=64 time=1.23 ms
+64 bytes from 192.168.56.20: icmp_seq=2 ttl=64 time=3.00 ms
+64 bytes from 192.168.56.20: icmp_seq=3 ttl=64 time=3.07 ms
+
+--- 192.168.56.20 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2004ms
+rtt min/avg/max/mdev = 1.229/2.431/3.069/0.850 ms
+
+===== Puerto MySQL abierto en la BD (nc) =====
+Connection to 192.168.56.20 33306 port [tcp/*] succeeded!
+
+===== telnet al puerto MySQL (saludo del servidor) =====
+Trying 192.168.56.20...
+Connected to 192.168.56.20.
+Escape character is '^]'.
+[
+8.4.11-0ubuntu0.26.04.1<wFK3LlMCJ6d'@caching_sha2_passwordConnection closed by foreign host.
+
+===== Puerto 3306 por defecto CERRADO =====
+nc: connect to 192.168.56.20 port 3306 (tcp) timed out: Operation now in progress
+-> correcto: 3306 no responde
+
+===== Login MySQL remoto con wp_user =====
+mysql: [Warning] Using a password on the command line interface can be insecure.
+CURRENT_USER()	@@hostname	@@port
+wp_user@192.168.56.10	lab5-db	33306
+Tables_in_wordpress_db
+wp_commentmeta
+wp_comments
+wp_links
+wp_options
+wp_postmeta
+wp_posts
+wp_term_relationships
+wp_term_taxonomy
+wp_termmeta
+wp_terms
+wp_usermeta
+wp_users
+
+===== Permisos de WordPress =====
+drwxr-xr-x 3 root    root     4096 Nov  9 21:52 /var/www
+drwxr-s--- 5 wpadmin www-data 4096 Nov  9 21:55 /var/www/wordpress
+total 248
+-rw-r-----  1 wpadmin www-data   405 Nov  9 21:52 index.php
+-rw-r-----  1 wpadmin www-data 19903 Nov  9 21:52 license.txt
+-rw-r-----  1 wpadmin www-data  7407 Nov  9 21:52 readme.html
+-rw-r-----  1 wpadmin www-data  7718 Nov  9 21:52 wp-activate.php
+drwxr-s---  9 wpadmin www-data  4096 Nov  9 21:52 wp-admin
+
+===== www-data NO puede escribir =====
+touch: cannot touch '/var/www/wordpress/prueba': Permission denied
+
+===== sysadmin NO puede escribir =====
+touch: setting times of '/var/www/wordpress/prueba': Permission denied
+
+===== wpadmin SÍ puede escribir =====
+-rw-r--r-- 1 wpadmin www-data 0 Nov  9 22:03 /var/www/wordpress/prueba
+
+===== HTTPS local =====
+HTTP/2 200 
+server: nginx
+date: Tue, 10 Nov 2026 04:03:09 GMT
+content-type: text/html; charset=UTF-8
+link: <https://redes-lab5-wp.duckdns.org/index.php?rest_route=/>; rel="https://api.w.org/"
+
+===== Certificado =====
+issuer=C=US, O=Let's Encrypt, CN=YE1
+subject=CN=redes-lab5-wp.duckdns.org
+notBefore=Nov 10 02:56:56 2026 GMT
+notAfter=Feb  8 02:56:55 2027 GMT

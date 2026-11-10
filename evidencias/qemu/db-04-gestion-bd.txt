@@ -1,0 +1,13 @@
+Database
+information_schema
+mysql
+performance_schema
+sys
+wordpress_db
+user	host	plugin
+wp_user	192.168.56.10	caching_sha2_password
+debian-sys-maint	localhost	auth_socket
+mysql.infoschema	localhost	caching_sha2_password
+mysql.session	localhost	caching_sha2_password
+mysql.sys	localhost	caching_sha2_password
+root	localhost	auth_socket

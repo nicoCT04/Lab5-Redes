@@ -1,0 +1,30 @@
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Account registered.
+Requesting a certificate for redes-lab5-wp.duckdns.org
+Hook '--manual-auth-hook' for redes-lab5-wp.duckdns.org ran with output:
+ DuckDNS: OK
+ PI_Udx2aaJ8foFeJo-p2nTjl2sgABzVxWcY_5V-h_Zc
+ UPDATED
+
+Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/redes-lab5-wp.duckdns.org/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/redes-lab5-wp.duckdns.org/privkey.pem
+This certificate expires on 2027-02-08.
+These files will be updated when the certificate renews.
+Certbot has set up a scheduled task to automatically renew this certificate in the background.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If you like Certbot, please consider supporting our work by:
+ * Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+ * Donating to EFF:                    https://eff.org/donate-le
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+== Certificado
+issuer=C=US, O=Let's Encrypt, CN=YE1
+subject=CN=redes-lab5-wp.duckdns.org
+notBefore=Nov 10 02:56:56 2026 GMT
+notAfter=Feb  8 02:56:55 2027 GMT
+NEXT                            LEFT LAST PASSED UNIT          ACTIVATES
+Tue 2026-11-10 03:30:11 CST 5h 34min -         - certbot.timer certbot.service
+

@@ -1,0 +1,8 @@
+$ ssh web hostname
+lab5-web
+$ ssh db hostname
+lab5-db
+$ ssh -p 22 sysadmin@192.168.56.10
+ssh: connect to host 192.168.56.10 port 22: Connection refused
+$ ssh -p 22 sysadmin@192.168.56.20
+ssh: connect to host 192.168.56.20 port 22: Connection refused

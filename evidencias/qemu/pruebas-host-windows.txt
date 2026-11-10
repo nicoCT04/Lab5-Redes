@@ -1,0 +1,76 @@
+
+===== ping a ambas VM =====
+
+Source        Destination     IPV4Address      IPV6Address                              Bytes    Time(ms) 
+------        -----------     -----------      -----------                              -----    -------- 
+LFMENDOZA-... 192.168.56.10   192.168.56.10                                             32       2        
+LFMENDOZA-... 192.168.56.10   192.168.56.10                                             32       2        
+LFMENDOZA-... 192.168.56.20                                                             32       3        
+LFMENDOZA-... 192.168.56.20                                                             32       2        
+
+===== Resolucion local (hosts) =====
+
+IgnoreCase : True
+LineNumber : 22
+Line       : 192.168.56.10    redes-lab5-wp.duckdns.org
+Filename   : InputStream
+Path       : InputStream
+Pattern    : redes-lab5-wp.duckdns.org
+Context    : 
+Matches    : {0}
+
+
+Name      : redes-lab5-wp.duckdns.org
+IPAddress : 192.168.56.10
+
+
+===== Puertos abiertos =====
+
+ComputerName     : 192.168.56.10
+RemotePort       : 22022
+TcpTestSucceeded : True
+
+
+ComputerName     : 192.168.56.10
+RemotePort       : 443
+TcpTestSucceeded : True
+
+
+ComputerName     : 192.168.56.20
+RemotePort       : 22022
+TcpTestSucceeded : True
+
+
+===== Puertos que deben estar CERRADOS (22 y MySQL desde host) =====
+
+ComputerName     : 192.168.56.10
+RemotePort       : 22
+TcpTestSucceeded : False
+
+
+ComputerName     : 192.168.56.20
+RemotePort       : 22
+TcpTestSucceeded : False
+
+
+ComputerName     : 192.168.56.20
+RemotePort       : 33306
+TcpTestSucceeded : False
+
+
+===== SSH a ambas VM =====
+Warning: Permanently added '[192.168.56.10]:22022' (ED25519) to the list of known hosts.
+lab5-web
+Description:	Ubuntu 26.04.1 LTS
+Warning: Permanently added '[192.168.56.20]:22022' (ED25519) to the list of known hosts.
+lab5-db
+Description:	Ubuntu 26.04.1 LTS
+
+===== HTTPS con certificado valido =====
+HTTP/1.1 200 OK
+Server: nginx
+Date: Tue, 10 Nov 2026 04:02:45 GMT
+Content-Type: text/html; charset=UTF-8
+Connection: keep-alive
+
+
