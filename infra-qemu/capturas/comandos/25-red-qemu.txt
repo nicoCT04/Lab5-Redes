@@ -1,0 +1,4 @@
+ssh web "echo == $(hostname); ip -4 -br addr; ip route | head -1"
+ssh db "echo == $(hostname); ip -4 -br addr; ip route | head -1"
+route print -4 192.168.56.*
+wsl -d Ubuntu-24.04 -e sh -c "ip -br addr show br-lab5; ip -br link show master br-lab5"
