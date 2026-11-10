@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" font-family="Liberation Sans, Arial, sans-serif" fill="#1E2933">
+  <defs>
+    <marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#2F3B4C"/></marker>
+  </defs>
+  <rect width="1400" height="760" fill="#FFFFFF"/>
+
+  <!-- Anfitrión -->
+  <rect x="385" y="40" width="975" height="600" fill="none" stroke="#7A8794" stroke-width="1.5" stroke-dasharray="8 6"/>
+  <text x="405" y="70" font-size="17" font-weight="bold">Anfitrión KVM</text>
+  <text x="405" y="92" font-size="14" fill="#55606B">Ubuntu 24.04 LTS · QEMU 8.2.2</text>
+
+  <!-- Segmento del laboratorio -->
+  <line x1="420" y1="200" x2="1300" y2="200" stroke="#1F3A5F" stroke-width="4"/>
+  <text x="1300" y="188" font-size="14" text-anchor="end" fill="#1F3A5F">Red del laboratorio 192.168.56.0/24 (br-lab5)</text>
+  <rect x="412" y="192" width="16" height="16" fill="#1F3A5F"/>
+  <text x="420" y="232" font-size="13" text-anchor="middle" fill="#55606B">.1</text>
+
+  <!-- Cliente -->
+  <rect x="40" y="150" width="220" height="100" fill="#F5F7F9" stroke="#2F3B4C" stroke-width="1.5"/>
+  <text x="150" y="185" font-size="16" font-weight="bold" text-anchor="middle">Cliente</text>
+  <text x="150" y="208" font-size="14" text-anchor="middle">Windows 11</text>
+  <text x="150" y="230" font-size="13" text-anchor="middle" fill="#55606B">SSH · FileZilla · navegador</text>
+  <line x1="260" y1="200" x2="410" y2="200" stroke="#2F3B4C" stroke-width="1.5" marker-end="url(#p)"/>
+  <text x="322" y="190" font-size="12" text-anchor="middle" fill="#55606B">ruta estática</text>
+  <text x="322" y="222" font-size="12" text-anchor="middle" fill="#55606B">NAT a .1</text>
+
+  <!-- lab5-web -->
+  <line x1="660" y1="200" x2="660" y2="300" stroke="#2F3B4C" stroke-width="1.5"/>
+  <text x="670" y="250" font-size="13" fill="#55606B">enp0s8 · .10</text>
+  <rect x="520" y="300" width="280" height="150" fill="#F5F7F9" stroke="#2F3B4C" stroke-width="1.5"/>
+  <text x="540" y="330" font-size="16" font-weight="bold">lab5-web</text>
+  <text x="780" y="330" font-size="14" text-anchor="end">192.168.56.10</text>
+  <line x1="520" y1="342" x2="800" y2="342" stroke="#C9D1D9"/>
+  <text x="540" y="368" font-size="14">Ubuntu Server 26.04.1 LTS</text>
+  <text x="540" y="392" font-size="14">Nginx 1.28 · PHP-FPM 8.5</text>
+  <text x="540" y="416" font-size="14">WordPress 7.1.4</text>
+  <text x="540" y="440" font-size="13" fill="#55606B">TCP 22022, 80, 443</text>
+
+  <!-- lab5-db -->
+  <line x1="1060" y1="200" x2="1060" y2="300" stroke="#2F3B4C" stroke-width="1.5"/>
+  <text x="1070" y="250" font-size="13" fill="#55606B">enp0s8 · .20</text>
+  <rect x="920" y="300" width="280" height="150" fill="#F5F7F9" stroke="#2F3B4C" stroke-width="1.5"/>
+  <text x="940" y="330" font-size="16" font-weight="bold">lab5-db</text>
+  <text x="1180" y="330" font-size="14" text-anchor="end">192.168.56.20</text>
+  <line x1="920" y1="342" x2="1200" y2="342" stroke="#C9D1D9"/>
+  <text x="940" y="368" font-size="14">Ubuntu Server 26.04.1 LTS</text>
+  <text x="940" y="392" font-size="14">MySQL 8.4.11 LTS</text>
+  <text x="940" y="416" font-size="14">wordpress_db · wp_user</text>
+  <text x="940" y="440" font-size="13" fill="#55606B">TCP 22022, 33306 (solo desde .10)</text>
+
+  <!-- web -> db -->
+  <line x1="800" y1="375" x2="916" y2="375" stroke="#2F3B4C" stroke-width="1.5" marker-end="url(#p)"/>
+  <text x="858" y="366" font-size="12" text-anchor="middle" fill="#55606B">MySQL</text>
+  <text x="858" y="394" font-size="12" text-anchor="middle" fill="#55606B">33306</text>
+
+  <!-- NAT -->
+  <line x1="660" y1="450" x2="660" y2="540" stroke="#7A8794" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="1060" y1="450" x2="1060" y2="540" stroke="#7A8794" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="670" y="500" font-size="13" fill="#55606B">enp0s3 · 10.0.2.15</text>
+  <text x="1070" y="500" font-size="13" fill="#55606B">enp0s3 · 10.0.2.15</text>
+  <rect x="520" y="540" width="680" height="56" fill="#FFFFFF" stroke="#7A8794" stroke-width="1.5"/>
+  <text x="860" y="574" font-size="14" text-anchor="middle">NAT de QEMU por VM · puerta de enlace 10.0.2.2 · solo tráfico saliente</text>
+
+  <!-- Internet -->
+  <line x1="1200" y1="568" x2="1270" y2="568" stroke="#7A8794" stroke-width="1.5"/>
+  <line x1="1270" y1="568" x2="1270" y2="676" stroke="#7A8794" stroke-width="1.5" marker-end="url(#p)"/>
+  <rect x="1140" y="680" width="220" height="56" fill="#FFFFFF" stroke="#2F3B4C" stroke-width="1.5"/>
+  <text x="1250" y="705" font-size="15" font-weight="bold" text-anchor="middle">Internet</text>
+  <text x="1250" y="725" font-size="12" text-anchor="middle" fill="#55606B">apt · Let's Encrypt · DuckDNS</text>
+
+  <!-- Resolución local -->
+  <rect x="40" y="290" width="220" height="86" fill="#FFFFFF" stroke="#7A8794" stroke-width="1.2"/>
+  <text x="56" y="316" font-size="13" fill="#55606B">archivo hosts</text>
+  <text x="56" y="340" font-size="12.5" font-family="Liberation Mono, monospace">192.168.56.10</text><text x="56" y="360" font-size="12.5" font-family="Liberation Mono, monospace">redes-lab5-wp.duckdns.org</text>
+</svg>
