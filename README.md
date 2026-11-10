@@ -58,6 +58,7 @@ scripts/web/               01-stack-web.sh, 02-wordpress-permisos.sh, 03-sftp.sh
 scripts/pruebas/           pruebas-servidor.sh, pruebas-host-windows.ps1, pruebas-host-mac-linux.sh
 infra-windows/             creación de las VM en la laptop de la demo (Windows, VirtualBox 7.2, autoinstall)
                            crear-vms.sh, hacer-seed.py (ISO CIDATA con pycdlib), subir.sh
+infra-qemu/                réplica del laboratorio con QEMU/KVM en WSL2 (validación); no se usa en la demo
 prototipo-mac/             automatización del prototipo en macOS (Apple Silicon); no se usa en la demo
 informe/                   informe del laboratorio (.docx)
 ```
@@ -132,6 +133,47 @@ las aplicaciones cliente. En esa conexión la VM web es el ordenador cliente, au
 En la VM web: `sudo apt-get install -y telnet`.
 
 Salidas de la demo (09/11/2026) en `evidencias/` (`*-01-ssh-puerto.txt`, `*-02-ufw.txt`, `db-03-mysql.txt`, `pruebas-*.txt`).
+
+---
+
+## Réplica con QEMU/KVM en WSL2 (Fernando)
+
+Réplica completa del laboratorio en una laptop con Windows + WSL2, donde VirtualBox no es
+estable (WSL2 activa Hyper-V; es el mismo problema que congelaba las VMs en la laptop de la
+demo). Sirve para validar los scripts de punta a punta y practicar; **la demo oficial sigue
+siendo la de VirtualBox**. Se usan los mismos `config/` y `scripts/` sin ningún cambio.
+
+| VirtualBox (demo) | Réplica QEMU/KVM |
+|---|---|
+| Adaptador host-only 192.168.56.1/24 | Puente `br-lab5` 192.168.56.1/24 en WSL (servicio `lab5-red`) |
+| Adaptador 1 NAT (10.0.2.15) | NAT de QEMU (10.0.2.15), DNS 1.1.1.1 / 8.8.8.8 |
+| `enp0s3` / `enp0s8` | Igual: las NIC van en las ranuras PCI 3 y 8 |
+| ISO + autoinstall | Imagen cloud oficial de Ubuntu Server 26.04 + cloud-init |
+| Host = Windows | Host = WSL (`/etc/hosts`, `ssh web`) y también Windows (ruta a 192.168.56.0/24 vía WSL) |
+
+```
+just -f infra-qemu/justfile requisitos   # una vez, pide sudo: QEMU, grupo kvm, red y /etc/hosts
+just -f infra-qemu/justfile vms          # crea y arranca lab5-web y lab5-db (sin pantalla)
+just -f infra-qemu/justfile desplegar --certificado   # todo el orden de la tabla de arriba
+just -f infra-qemu/justfile pruebas      # solo pruebas
+```
+En Windows (PowerShell como administrador): `infra-qemu\windows.ps1` agrega la ruta, la línea
+en `hosts`, los alias `web`/`db` y el cliente telnet. Hay que volver a correrlo si se reinicia
+Windows, porque cambia la IP de WSL.
+
+Detalles:
+- Windows llega a las VMs a través de WSL; WSL hace MASQUERADE, así que el tráfico entra a
+  las VMs desde 192.168.56.1 y UFW lo trata igual que al host de VirtualBox.
+- QEMU corre como usuario normal: las interfaces `tap-web`/`tap-db` son de ese usuario.
+- No se usa la consola: la salida serie queda en `infra-qemu/build/<vm>-serial.log`.
+- Evidencias en `evidencias/qemu/`.
+
+| Problema | Causa | Solución |
+|---|---|---|
+| La NIC NAT quedó como `enp0s2` | cloud-init no puede renombrar una interfaz ya activa en el primer arranque | Fijar las NIC en las ranuras PCI 3 y 8 |
+| `ssh` rechazado con "System is booting up" | El puerto abre antes de que termine el arranque (`pam_nologin`) | Esperar a que el login funcione, no solo a que abra el puerto |
+| `route add` fallaba desde PowerShell | PowerShell 5.1 altera las comillas al llamar a `wsl.exe` | Obtener la IP de WSL con `hostname -I` |
+| FileZilla no se instala con winget | No está en el catálogo de winget | Descargarlo de filezilla-project.org |
 
 ---
 
