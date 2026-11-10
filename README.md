@@ -166,14 +166,39 @@ Detalles:
   las VMs desde 192.168.56.1 y UFW lo trata igual que al host de VirtualBox.
 - QEMU corre como usuario normal: las interfaces `tap-web`/`tap-db` son de ese usuario.
 - No se usa la consola: la salida serie queda en `infra-qemu/build/<vm>-serial.log`.
-- Evidencias en `evidencias/qemu/`.
+- Evidencias en `evidencias/qemu/` (salidas en texto) y `evidencias/qemu/capturas/` (17 capturas).
+- FileZilla 3.71.1 portable (zip oficial, SHA-512 verificado) en `%LOCALAPPDATA%\Programs`.
+
+Las capturas se tomaron con `infra-qemu/capturas/`: cada una abre una consola, Edge o FileZilla
+en Windows, corre los comandos de `capturas/comandos/<n>.txt` y captura **solo esa ventana**.
+Para repetirlas, copiar la carpeta a `%TEMP%\lab5` (junto con `scripts\pruebas\pruebas-host-windows.ps1`) y:
+```
+powershell -ExecutionPolicy Bypass -File $env:TEMP\lab5\tomar.ps1 -Lista $env:TEMP\lab5\comandos\11-ufw-ambas.txt -Png $env:TEMP\lab5\11.png
+```
+En FileZilla la llave del servidor se aceptó después de comparar la huella con
+`ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` en lab5-web (`SHA256:XX4MpdWZ...`).
+
+| Requisito | Captura (`evidencias/qemu/capturas/`) |
+|---|---|
+| Hipervisor y VMs | `01-qemu-vms` |
+| SSH 22022, 22 cerrado | `02-ssh-puerto-22022` |
+| UFW en ambas VM | `03-ufw-ambas` |
+| BD: gestión por SSH, 33306 | `04-mysql-gestion-ssh` |
+| 2 capas: ping, nc, login remoto | `05-dos-capas-web-a-db`, `06-telnet-web-a-mysql` |
+| Permisos chown/chmod | `07-permisos-wordpress` |
+| SFTP con FileZilla | `08-filezilla-conectado-chroot`, `09-filezilla-subida`, `10-filezilla-archivo-remoto`, `11-archivo-sftp-navegador` |
+| HTTPS Let's Encrypt | `12-sitio-https`, `13-hosts-y-certificado` |
+| Resolución local | `13-hosts-y-certificado` |
+| Pruebas desde el host | `14-pruebas-host-windows`, `15-telnet-host-33306`, `16-telnet-host-443` |
+| Versiones | `17-versiones` |
 
 | Problema | Causa | Solución |
 |---|---|---|
 | La NIC NAT quedó como `enp0s2` | cloud-init no puede renombrar una interfaz ya activa en el primer arranque | Fijar las NIC en las ranuras PCI 3 y 8 |
 | `ssh` rechazado con "System is booting up" | El puerto abre antes de que termine el arranque (`pam_nologin`) | Esperar a que el login funcione, no solo a que abra el puerto |
 | `route add` fallaba desde PowerShell | PowerShell 5.1 altera las comillas al llamar a `wsl.exe` | Obtener la IP de WSL con `hostname -I` |
-| FileZilla no se instala con winget | No está en el catálogo de winget | Descargarlo de filezilla-project.org |
+| FileZilla no se instala con winget | No está en el catálogo de winget | Zip portable oficial, verificado con su SHA-512 |
+| Con UFW activo, `ssh -p 22` da *timed out* y no *refused* | UFW descarta (DROP) en vez de rechazar | Es lo esperado: *refused* solo se ve antes de activar UFW (`evidencias/qemu/01-puerto-22-cerrado.txt`) |
 
 ---
 
