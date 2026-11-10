@@ -5,6 +5,7 @@ secretos.env
 *.iso
 prototipo-mac/build/
 infra-windows/build/
+infra-qemu/build/
 
 # Material que no va al repo
 docs/
